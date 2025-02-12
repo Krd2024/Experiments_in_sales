@@ -10,7 +10,6 @@ class DeviceSerializer(serializers.ModelSerializer):
         fields = ["token"]
 
     def validate_token(self, token):
-        # token = data.get("token")
         print(token, "--- token in validate_token ---")
         try:
             if Device.objects.filter(token=token).exists():

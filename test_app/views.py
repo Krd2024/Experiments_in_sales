@@ -38,40 +38,45 @@ class TestViewSet(APIView):
                 location=OpenApiParameter.HEADER,
             )
         ],
-        request=DeviceSerializer,
+        # request=DeviceSerializer,
     )
     def post(self, request):
-        print("--- POST ---")
         try:
+            # Получить токен из заголовка
             device_token = request.headers.get("Device-Token")
+            # Создать копию
+            data = request.data.copy()
+            # Добавить токен в запрос
+            data["token"] = device_token
+            # Получить сериалайзер
+            serializer = self.get_serializer_class()(data=data)
 
             data = action_choice_token(device_token)
-            logger.debug(data)
+            logger.info((f"✅ {data} < ----------- Данные из кеша "))
+
             if data:
                 return Response(data, status=200)
 
-            # Добавить токен
-            request.data["token"] = device_token
-            print(request.data, "--- request.data in POST---")
-
-            serializer = self.get_serializer_class()(data=request.data)
-
             if serializer.is_valid():
                 data = serializer.data["token"]
-                logger.info(data)
+                logger.info((f"✅ {data} < ----------- Новые данные"))
                 return Response({"data": data})
 
             logger.error(serializer.errors)
             return Response(serializer.errors, status=400)
 
-        except IntegrityError:
-            print("--- except IntegrityError ---")
-            data = cache_price(device_token)
-            logger.info(data)
-            return Response(serializer.errors, status=400)
+        except IntegrityError as e:
+            logger.error(f"Ошибка базы данных: {e}")
+            return Response({"error": "Ошибка базы данных"}, status=500)
+        except KeyError as e:
+            logger.error(f"Отсутствует ключ: {e}")
+            return Response({"error": f"Ошибка: отсутствует {str(e)}"}, status=400)
         except Exception as e:
-            logger.error(f"Ошибка {e}")
-            return Response(serializer.errors, status=400)
+            logger.exception(
+                "Неизвестная ошибка",
+                e,
+            )  # Используем logger.exception для трассировки
+            return Response({"error": "Внутренняя ошибка сервера"}, status=500)
 
 
 # class TestViewSet(APIView):

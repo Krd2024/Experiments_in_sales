@@ -12,7 +12,7 @@ def get_color_button(token: str) -> object:
     try:
         device = Device.objects.get(token=token)
         button_obj = Button.objects.get(device=device)
-        return button_obj.color
+        return button_obj
     except Exception as e:
         logger.error(f"Ошибка {e}")
 
@@ -21,7 +21,7 @@ def get_price(token: str) -> object:
     try:
         device = Device.objects.get(token=token)
         price_obj = Price.objects.get(device=device)
-        return price_obj.price
+        return price_obj
     except Exception as e:
         logger.error(f"Ошибка {e}")
 
@@ -32,17 +32,17 @@ def create_device(token: str) -> object:
         # Получить цвет из словаря согласно группе
         color = COLOR_DICT[device.id % len(COLOR_DICT)]
         price = assign_price()
-        print(color, "--- color ---")
-        print(price, "--- price ---")
+        logger.info((color, "--- color ---"))
+        logger.info((price, "--- price ---"))
 
         price_obj = Price.objects.create(device=device, price=price)
         color_obj = Button.objects.create(device=device, color=color)
 
-        data = {"token": token, "color": color_obj.color, "price": price_obj.price}
+        data = {"device": token, "color": color_obj.color, "price": price_obj.price}
         print(data, "--- data in create_device ---")
         cache.set(token, data)
 
-        logger.debug(cache.get(token))
+        logger.debug((f"{cache.get(token)} ✅ Добавлено в кеш"))
 
         return data
     except Exception as e:
@@ -62,7 +62,9 @@ def cache_price(token):
     data = cache.get(token)
 
     if data is None:
-        data = create_device(token)
+        color_obj = get_color_button(token)
+        price_obj = get_price(token)
+        data = {"device": token, "color": color_obj.color, "price": price_obj.price}
         cache.set(token, data)
     logger.debug(data)
     return data
