@@ -1,14 +1,12 @@
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.db import IntegrityError
 from django.shortcuts import render
 from loguru import logger
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework.views import APIView
-from rest_framework.response import Response
 
-from test_app.serializers import DeviceSerializer
 from test_app.service.device_service import action_choice_token
+from test_app.serializers import DeviceSerializer
 
 
 def main(request):
@@ -22,6 +20,32 @@ class TestViewSet(APIView):
         return DeviceSerializer
 
     @extend_schema(
+        request={
+            200: {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "Device-Token": {"type": "string", "example": "1"},
+                    },
+                },
+                "example": {"Device-Token": "1"},
+            }
+        },
+        responses={
+            200: {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "device": {"type": "string", "example": "1"},
+                        "color": {"type": "string", "example": "#FF0000"},
+                        "price": {"type": "number", "example": 10},
+                    },
+                },
+                "example": {"device": "1", "color": "#FF0000", "price": 10},
+            }
+        },
         operation_id="test_post",
         parameters=[
             OpenApiParameter(
@@ -69,7 +93,7 @@ class TestViewSet(APIView):
             logger.exception(
                 "Неизвестная ошибка",
                 e,
-            )  # Используем logger.exception для трассировки
+            )
             return Response({"error": "Внутренняя ошибка сервера"}, status=500)
 
 

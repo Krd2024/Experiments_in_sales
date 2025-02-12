@@ -4,10 +4,6 @@ from test_app.models import Button, Device, Price
 from loguru import logger
 from django.core.cache import cache
 
-# from django.http import JsonResponse
-
-COLOR_DICT
-
 
 def get_color_button(token: str) -> object:
     try:

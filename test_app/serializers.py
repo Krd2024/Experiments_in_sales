@@ -1,7 +1,8 @@
-from loguru import logger
 from rest_framework import serializers
+from loguru import logger
+
+from test_app.service.device_service import cache_price, create_device
 from test_app.models import Device
-from test_app.service.device_service import cache_price, create_device, get_color_button
 
 
 class DeviceSerializer(serializers.ModelSerializer):
