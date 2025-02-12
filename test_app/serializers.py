@@ -1,6 +1,7 @@
+from loguru import logger
 from rest_framework import serializers
 from test_app.models import Device
-from test_app.service.device_service import create_device, get_color_button
+from test_app.service.device_service import cache_price, create_device, get_color_button
 
 
 class DeviceSerializer(serializers.ModelSerializer):
@@ -10,14 +11,19 @@ class DeviceSerializer(serializers.ModelSerializer):
 
     def validate_token(self, token):
         # token = data.get("token")
-        if Device.objects.filter(token=token).exists():
-            # Вернуть объект с данными
-            color_button = get_color_button(token)
-            context = {"color_button": color_button}
-            return context
-        color_button = create_device(token)
-        context = {"color_button": color_button}
-        return context
+        print(token, "--- token in validate_token ---")
+        try:
+            if Device.objects.filter(token=token).exists():
+                # Получить цвет кнопки и прайс
+                data = cache_price(token)
+                return data
+
+            data = create_device(token)
+            # context = {"color_button": color_button, "price": price}
+            logger.info(data)
+            return data
+        except Exception as e:
+            logger.error(f"Ошибка: {e}")
 
 
 # def update(self, instance, validated_data):
