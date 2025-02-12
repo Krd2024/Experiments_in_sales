@@ -6,7 +6,7 @@ from django.shortcuts import render
 from loguru import logger
 
 from test_app.service.device_service import action_choice_token
-from test_app.serializers import DeviceSerializer
+from test_app.serializers import DeviceSerializer, RequestSerializer
 
 
 def main(request):
@@ -20,18 +20,7 @@ class TestViewSet(APIView):
         return DeviceSerializer
 
     @extend_schema(
-        request={
-            200: {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "Device-Token": {"type": "string", "example": "1"},
-                    },
-                },
-                "example": {"Device-Token": "1"},
-            }
-        },
+        request=RequestSerializer,
         responses={
             200: {
                 "type": "array",
@@ -49,19 +38,18 @@ class TestViewSet(APIView):
         operation_id="test_post",
         parameters=[
             OpenApiParameter(
-                name="Device-Token",
+                name="DeviceToken",
                 description="Уникальный токен устройства",
                 required=True,
                 type=str,
                 location=OpenApiParameter.HEADER,
             )
         ],
-        # request=DeviceSerializer,
     )
     def post(self, request):
         try:
             # Получить токен из заголовка
-            device_token = request.headers.get("Device-Token")
+            device_token = request.headers.get("DeviceToken")
             # Создать копию
             data = request.data.copy()
             # Добавить токен в запрос

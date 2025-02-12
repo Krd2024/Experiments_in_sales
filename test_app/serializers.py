@@ -1,8 +1,13 @@
 from rest_framework import serializers
 from loguru import logger
 
+
 from test_app.service.device_service import cache_price, create_device
 from test_app.models import Device
+
+
+class RequestSerializer(serializers.Serializer):
+    DeviceToken = serializers.CharField(max_length=50, source="device-token")
 
 
 class DeviceSerializer(serializers.ModelSerializer):
