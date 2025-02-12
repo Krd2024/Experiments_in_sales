@@ -1,9 +1,10 @@
-from django.db.models import QuerySet
+# from django.db.models import QuerySet
 from test_app.config.color_and_price import COLOR_DICT, assign_price
 from test_app.models import Button, Device, Price
 from loguru import logger
 from django.core.cache import cache
-from django.http import JsonResponse
+
+# from django.http import JsonResponse
 
 COLOR_DICT
 

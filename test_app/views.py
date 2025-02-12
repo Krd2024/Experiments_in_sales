@@ -6,11 +6,9 @@ from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 
-# from .serializers import TestSerializer
 from test_app.serializers import DeviceSerializer
-from test_app.service.device_service import action_choice_token, cache_price
+from test_app.service.device_service import action_choice_token
 
 
 def main(request):
@@ -22,10 +20,6 @@ class TestViewSet(APIView):
         if self.request.method == "POST":
             return DeviceSerializer
         return DeviceSerializer
-
-    def get(self, request):
-        serializer = self.get_serializer_class()()
-        return Response({"message": "GET request", "schema": serializer.data})
 
     @extend_schema(
         operation_id="test_post",
@@ -52,14 +46,14 @@ class TestViewSet(APIView):
             serializer = self.get_serializer_class()(data=data)
 
             data = action_choice_token(device_token)
-            logger.info((f"✅ {data} < ----------- Данные из кеша "))
+            logger.info((f"✅ {data} < --- Данные из кеша "))
 
             if data:
                 return Response(data, status=200)
 
             if serializer.is_valid():
                 data = serializer.data["token"]
-                logger.info((f"✅ {data} < ----------- Новые данные"))
+                logger.info((f"✅ {data} < --- Новые данные"))
                 return Response({"data": data})
 
             logger.error(serializer.errors)
