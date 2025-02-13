@@ -61,7 +61,7 @@ def action_choice_token(token):
         return False
         # Получить цвет кнопки и прайс
     data = cache_price(token)
-    # logger.debug(data)
+    logger.debug(data)
     return data
 
 
@@ -90,6 +90,9 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
             count_devices = int(new_count_devices)
             devices = devices[:count_devices]
         else:
+            # Если введенное кол-во устройств больше чем устройств в базе
+            # дозаписывается разница между значениями
+            #
             count_devices = int(new_count_devices)
 
             for i in range(count_devices):
@@ -107,6 +110,12 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
                     #
                     prices[device_id.price] += 1
 
+            count_devices_dict = {
+                "color_red": colors["red"],
+                "color_green": colors["green"],
+                "color_blue": colors["blue"],
+            }
+            logger.info(count_devices_dict)
         except Exception as e:
             logger.error(f"ERROR-1: {str(e)}")
 
@@ -124,12 +133,15 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
         print("-" * 50)
 
         print("РАСПРЕДЕЛЕНИЕ ЦВЕТА ДЛЯ КНОПОК:\n")
+
         for color, count in colors.items():
             #
+
             colors[color] = f"{count / count_devices * 100:.2f}"
             print(f"Цвет {color}: {count / count_devices * 100:.2f}%")
 
         return {
+            "count_devices_dict": count_devices_dict,
             "price": prices,
             "color": colors,
             "count_devices_now": count_devices,
