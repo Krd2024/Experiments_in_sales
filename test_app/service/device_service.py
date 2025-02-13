@@ -85,14 +85,6 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
     devices = Device.objects.prefetch_related("button_set", "price_set").all()
     count_devices_now = len(devices)
 
-    # cache.clear()
-    # Device.objects.all().delete()
-    # count_devices_now = int(new_count_devices)
-    # cache.clear()
-    #     Device.objects.all().delete()
-    # logger.debug(new_count_devices)
-    # logger.debug(count_devices_now)
-
     try:
         if int(new_count_devices) < count_devices_now:
             count_devices = int(new_count_devices)
