@@ -1,4 +1,5 @@
 # from django.db.models import QuerySet
+from django.shortcuts import redirect
 from test_app.config.color_and_price import COLOR_DICT, assign_price
 from test_app.models import Button, Device, Price
 from loguru import logger
@@ -26,20 +27,23 @@ def get_price(token: str) -> object:
 def create_device(token: str) -> object:
     try:
         device = Device.objects.create(token=token)
+
         # Получить цвет из словаря согласно группе
         color = COLOR_DICT[device.id % len(COLOR_DICT)]
+
+        # Получить цену согласно процетному распределению
         price = assign_price()
-        logger.info((color, "--- color ---"))
-        logger.info((price, "--- price ---"))
+        # logger.info((color, "--- color ---"))
+        # logger.info((price, "--- price ---"))
 
         price_obj = Price.objects.create(device=device, price=price)
         color_obj = Button.objects.create(device=device, color=color)
 
         data = {"device": token, "color": color_obj.color, "price": price_obj.price}
-        print(data, "--- data in create_device ---")
+        # print(data, "--- data in create_device ---")
         cache.set(token, data)
 
-        logger.debug((f"{cache.get(token)} ✅ Добавлено в кеш"))
+        # logger.debug((f"{cache.get(token)} ✅ Добавлено в кеш"))
 
         return data
     except Exception as e:
@@ -65,3 +69,33 @@ def cache_price(token):
         cache.set(token, data)
     logger.debug(data)
     return data
+
+
+def add_devices(request) -> None:
+    if request.method == "POST":
+        number_of_device = request.POST.get("device_count")
+        device_dict = {}
+
+        if number_of_device.isdigit():
+            for i in range(1, int(number_of_device) + 1):
+                create_device(i)
+
+        devices = Device.objects.prefetch_related("button_set", "price_set").all()
+        count_devices = len(devices)
+        prices = {10: 0, 20: 0, 50: 0, 5: 0}
+        for device in devices:
+            for device_id in device.button_set.all():
+
+                data = {}
+                data["color"] = device_id.color
+                device_dict[device.id] = data
+            for device_id in device.price_set.all():
+                prices[device_id.price] += 1
+                data["price"] = device_id.price
+
+        logger.info(prices)
+        # Выводим проценты
+        print("Всего устройств:", count_devices, "\n------------")
+        for price, count in prices.items():
+            print(f"Цена {price}: {count / count_devices * 100:.2f}%")
+        return redirect("main")

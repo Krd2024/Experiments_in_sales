@@ -16,7 +16,7 @@ def get_price():
 
 # Тестируем
 prices = {10: 0, 20: 0, 50: 0, 5: 0}
-trials = 100000
+trials = 10
 
 for _ in range(trials):
     price = get_price()
