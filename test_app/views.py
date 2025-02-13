@@ -2,11 +2,12 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db import IntegrityError
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from loguru import logger
 
-from test_app.service.device_service import action_choice_token
+# from test_app.service.config import action_choice_token, service_add_devices
 from test_app.serializers import DeviceSerializer, RequestSerializer
+from test_app.service.device_service import action_choice_token, service_add_devices
 
 
 def main(request):
@@ -85,8 +86,13 @@ class TestViewSet(APIView):
             return Response({"error": "Внутренняя ошибка сервера"}, status=500)
 
 
-# class TestViewSet(APIView):
-#     serializer_class = TestSerializer
+def add_devices(request):
+    if request.method == "POST":
+        number_of_device = request.POST.get("device_count")
+        logger.debug(number_of_device)
 
-#     def post(self, request):
-#         return Response({"message": "Hello, world!"})
+        context = service_add_devices(request, number_of_device)
+        logger.info(context)
+        return render(request, "main.html", {"context": context})
+
+    return redirect("main")

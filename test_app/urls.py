@@ -1,6 +1,6 @@
 # from rest_framework.routers import DefaultRouter
-from test_app.service.device_service import add_devices
-from .views import TestViewSet, main
+# from test_app.service.device_service import add_devices
+from .views import TestViewSet, main, add_devices
 from django.urls import path
 
 
