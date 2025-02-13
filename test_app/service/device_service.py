@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render
 from test_app.config.color_and_price import (
     COLOR_DICT,
     COLOR_DICT_FOR_STATISTIC,
+    dict_for_statistics,
 )
 from test_app.config.color_and_price import assign_price
 from test_app.models import Button, Device, Price
@@ -76,61 +77,71 @@ def cache_price(token):
     return data
 
 
-def service_add_devices(request, number_of_device) -> None:
+def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
+    if int(new_count_devices) < 0:
+        return "Значение меньше нуля"
+    prices, colors = dict_for_statistics()
 
-    PRICES = {10: 0, 20: 0, 50: 0, 5: 0}
-    COLORS = {"red": 0, "green": 0, "blue": 0}
+    devices = Device.objects.prefetch_related("button_set", "price_set").all()
+    count_devices_now = len(devices)
 
-    # if request.method == "POST":
-    #     number_of_device = request.POST.get("device_count")
-    print(Device.objects.all().delete())
-    cache.clear()
+    # cache.clear()
+    # Device.objects.all().delete()
+    # count_devices_now = int(new_count_devices)
+    # cache.clear()
+    #     Device.objects.all().delete()
+    # logger.debug(new_count_devices)
+    # logger.debug(count_devices_now)
+
     try:
-        if number_of_device.isdigit():
-            for i in range(1, int(number_of_device) + 1):
+        if int(new_count_devices) < count_devices_now:
+            count_devices = int(new_count_devices)
+            devices = devices[:count_devices]
+        else:
+            count_devices = int(new_count_devices)
+
+            for i in range(count_devices):
                 # Создать запись в БД для Device
                 create_device(i)
+            devices = Device.objects.prefetch_related("button_set", "price_set").all()
 
-        devices = Device.objects.prefetch_related("button_set", "price_set").all()
-        count_devices = len(devices)
         try:
             for device in devices:
                 for device_id in device.button_set.all():
-                    # logger.info(
-                    #     f"❗Тип device_id.price: {type(device_id.color)}, значение: {device_id.color}"
-                    # )
-
                     # Увеличить значение оного из цветов на 1
-                    COLORS[COLOR_DICT_FOR_STATISTIC[device_id.color]] += 1
+                    colors[COLOR_DICT_FOR_STATISTIC[device_id.color]] += 1
 
                 for device_id in device.price_set.all():
-                    # logger.info(
-                    #     f"❗Тип device_id.price: {type(device_id.price)}, значение: {device_id.price}"
-                    # )
-                    PRICES[device_id.price] += 1
+                    #
+                    prices[device_id.price] += 1
 
         except Exception as e:
             logger.error(f"ERROR-1: {str(e)}")
 
-        logger.info(PRICES)  # Количественное распределение цен
-        logger.info(COLORS)  # Количественное распределение цвета
+        logger.info(prices)  # Количественное распределение цен
+        logger.info(colors)  # Количественное распределение цвета
         # Выводим проценты
-        print("Всего устройств:", count_devices, "\n---------------------")
+        print("Всего устройств:", count_devices_now, "\n---------------------")
         print("РАСПРЕДЕЛЕНИЕ ЦЕНЫ:\n")
 
-        for price, count in PRICES.items():
-
-            PRICES[price] = float(f"{int(count) / int(count_devices) * 100:.2f}")
-            print(f"Цена {price}: {int(count) / int(count_devices) * 100:.2f}%")
+        for price, count in prices.items():
+            #
+            prices[price] = f"{count / count_devices * 100:.2f}"
+            print(f"Цена {price}: {count / count_devices * 100:.2f}%")
 
         print("-" * 50)
 
         print("РАСПРЕДЕЛЕНИЕ ЦВЕТА ДЛЯ КНОПОК:\n")
-        for color, count in COLORS.items():
-            COLORS[color] = f"{count / count_devices * 100:.2f}"
+        for color, count in colors.items():
+            #
+            colors[color] = f"{count / count_devices * 100:.2f}"
             print(f"Цвет {color}: {count / count_devices * 100:.2f}%")
 
-        return {"price": PRICES, "color": COLORS, "count_devices": count_devices}
+        return {
+            "price": prices,
+            "color": colors,
+            "count_devices_now": count_devices,
+        }
 
     except Exception as e:
         logger.error(f"Ошибка: {e}")

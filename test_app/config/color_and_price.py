@@ -4,9 +4,10 @@ COLOR_DICT = {0: "#FF0000", 1: "#00FF00", 2: "#0000FF"}
 COLOR_DICT_FOR_STATISTIC = {"#FF0000": "red", "#00FF00": "green", "#0000FF": "blue"}
 
 
-# def dict_for_statistics() -> dict:
-#     PRICES = {10: 0, 20: 0, 50: 0, 5: 0}
-#     COLORS = {"red": 0, "green": 0, "blue": 0}
+def dict_for_statistics() -> dict:
+    prices = {10: 0, 20: 0, 50: 0, 5: 0}
+    colors = {"red": 0, "green": 0, "blue": 0}
+    return prices, colors
 
 
 def assign_price() -> int:
