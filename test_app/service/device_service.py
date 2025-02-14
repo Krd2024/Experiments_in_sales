@@ -86,7 +86,6 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
     if int(new_count_devices) > LIMIT:
         return {"error": f"Больше {LIMIT} не надо"}
 
-    # devices = DeviceTest.objects.prefetch_related("button_set", "price_set").all()
     DeviceTest.objects.all().delete()
     try:
         count_devices = int(new_count_devices)
