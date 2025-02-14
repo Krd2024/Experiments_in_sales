@@ -7,7 +7,11 @@ from loguru import logger
 
 # from test_app.service.config import action_choice_token, service_add_devices
 from test_app.serializers import DeviceSerializer, RequestSerializer
-from test_app.service.device_service import action_choice_token, service_add_devices
+from test_app.service.device_service import (
+    action_choice_token,
+    service_add_devices,
+    work_service,
+)
 
 
 def main(request):
@@ -19,7 +23,8 @@ def tests(request):
 
 
 def work(request):
-    return render(request, "work.html")
+    context = work_service(request)
+    return render(request, "work.html", {"context": context})
 
 
 class TestViewSet(APIView):

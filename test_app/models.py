@@ -20,7 +20,9 @@ class Device(models.Model):
 
 
 class Button(models.Model):
-    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    device = models.ForeignKey(
+        Device, on_delete=models.CASCADE, related_name="button_set"
+    )
     color = models.CharField(max_length=7)  # HEX-код цвета (#FF0000, #00FF00, #0000FF)
 
     def __str__(self):
@@ -28,7 +30,9 @@ class Button(models.Model):
 
 
 class Price(models.Model):
-    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    device = models.ForeignKey(
+        Device, on_delete=models.CASCADE, related_name="price_set"
+    )
     price = models.IntegerField()  # Цена (10, 20, 50, 5)
 
     def __str__(self):
@@ -48,7 +52,9 @@ class DeviceTest(models.Model):
 
 
 class ButtonTest(models.Model):
-    device = models.ForeignKey(DeviceTest, on_delete=models.CASCADE)
+    device = models.ForeignKey(
+        DeviceTest, on_delete=models.CASCADE, related_name="button_set"
+    )
     color = models.CharField(max_length=7)  # HEX-код цвета (#FF0000, #00FF00, #0000FF)
 
     def __str__(self):
@@ -56,7 +62,9 @@ class ButtonTest(models.Model):
 
 
 class PriceTest(models.Model):
-    device = models.ForeignKey(DeviceTest, on_delete=models.CASCADE)
+    device = models.ForeignKey(
+        DeviceTest, on_delete=models.CASCADE, related_name="price_set"
+    )
     price = models.IntegerField()  # Цена (10, 20, 50, 5)
 
     def __str__(self):

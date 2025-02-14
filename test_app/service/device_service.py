@@ -13,6 +13,8 @@ from test_app.models import Button, ButtonTest, Device, DeviceTest, Price, Price
 from loguru import logger
 from django.core.cache import cache
 
+from test_app.service.create_statistics import statistics
+
 
 def get_color_button(token: str) -> object:
     try:
@@ -98,57 +100,64 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
         for i in range(count_devices):
             try:
                 list_devices.append(Device(token=i))
+
                 color = COLOR_DICT[i % len(COLOR_DICT)]
                 price = assign_price()
 
                 list_color.append(Button(device=list_devices[0], color=color))
                 list_price.append(Price(device=list_devices[0], price=price))
-            except Exception as e:
+            except Exception as e:  # noqa
                 pass
 
+        # Массовая всатвка объектов
         DeviceTest.objects.bulk_create(list_devices)
         ButtonTest.objects.bulk_create(list_color)
         PriceTest.objects.bulk_create(list_price)
 
         # ================================================================================
 
-        devices = DeviceTest.objects.prefetch_related(
-            "buttontest_set", "pricetest_set"
-        ).all()
+        devices = DeviceTest.objects.prefetch_related("button_set", "price_set").all()
 
-        try:
-            prices, colors = dict_for_statistics()
-            for device in devices:
-                for device_id in device.buttontest_set.all():
-                    # Посчитать количество устроойств для каждой группы цвета
-                    colors[COLOR_DICT_FOR_STATISTIC[device_id.color]] += 1
+        return statistics(devices)
 
-                for device_id in device.pricetest_set.all():
-                    # Посчитать количество устроойств для каждой группы цен
-                    prices[device_id.price] += 1
+        # try:
+        #     prices, colors = dict_for_statistics()
+        #     for device in devices:
+        #         for device_id in device.buttontest_set.all():
+        #             # Посчитать количество устроойств для каждой группы цвета
+        #             colors[COLOR_DICT_FOR_STATISTIC[device_id.color]] += 1
 
-            # Объеденить в один словарь
-            count_devices_dict = {**colors, **prices}
+        #         for device_id in device.pricetest_set.all():
+        #             # Посчитать количество устроойств для каждой группы цен
+        #             prices[device_id.price] += 1
 
-        except Exception as e:
-            logger.error(f"ERROR-1: {str(e)}")
-            return f"{e}"
+        #     # Объеденить в один словарь
+        #     count_devices_dict = {**colors, **prices}
 
-        logger.info(prices)  # Количественное распределение цен
-        logger.info(colors)  # Количественное распределение цвета
+        # except Exception as e:
+        #     logger.error(f"ERROR-1: {str(e)}")
+        #     return f"{e}"
 
-        for price, count in prices.items():
-            prices[price] = f"{count / count_devices * 100:.2f}"
+        # logger.info(prices)  # Количественное распределение цен
+        # logger.info(colors)  # Количественное распределение цвета
 
-        for color, count in colors.items():
-            colors[color] = f"{count / count_devices * 100:.2f}"
+        # for price, count in prices.items():
+        #     prices[price] = f"{count / count_devices * 100:.2f}"
 
-        return {
-            "count_devices_dict": count_devices_dict,
-            "price": prices,
-            "color": colors,
-            "total_devices": count_devices,
-        }
+        # for color, count in colors.items():
+        #     colors[color] = f"{count / count_devices * 100:.2f}"
+
+        # return {
+        #     "count_devices_dict": count_devices_dict,
+        #     "price": prices,
+        #     "color": colors,
+        #     "total_devices": count_devices,
+        # }
 
     except Exception as e:
         logger.error(f"Ошибка: {e}")
+
+
+def work_service(request) -> dict[str, str]:
+    devices = devices = Device.objects.prefetch_related("button_set", "price_set").all()
+    return statistics(devices)
