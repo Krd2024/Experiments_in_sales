@@ -18,7 +18,7 @@
         <hr />
         <div class="alert alert-info d-inline-block">
           <span class="fw-bold">Число устройств:</span>
-          <span id="totalDevices" class="badge bg-primary">{{ context.count_devices_now }}</span>
+          <span id="totalDevices" class="badge bg-primary">{{ context.count_devices_now }}{{ context.error }}</span>
         </div>
       </div>
 
@@ -35,18 +35,18 @@
           <tr>
             <td style="background-color: #FF0000; color: white;">#FF0000</td>
             <td>{{ context.color.red }}%</td>
-            <td>{{ context.count_devices_dict.color_red }}</td>
+            <td>{{ context.count_devices_dict.red }}</td>
             {% comment %} <td>{{ count_devices_dict.count_devaice_color_red }}%</td> {% endcomment %}
           </tr>
           <tr>
             <td style="background-color: #00FF00;">#00FF00</td>
             <td>{{ context.color.green }}%</td>
-            <td>{{ context.count_devices_dict.color_green }}</td>
+            <td>{{ context.count_devices_dict.green }}</td>
           </tr>
           <tr>
             <td style="background-color: #0000FF; color: white;">#0000FF</td>
             <td>{{ context.color.blue }}%</td>
-            <td>{{ context.count_devices_dict.color_blue }}</td>
+            <td>{{ context.count_devices_dict.blue }}</td>
           </tr>
         </tbody>
       </table>

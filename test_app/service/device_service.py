@@ -3,6 +3,7 @@ from django.shortcuts import redirect, render
 from test_app.config.color_and_price import (
     COLOR_DICT,
     COLOR_DICT_FOR_STATISTIC,
+    LIMIT,
     dict_for_statistics,
     get_count_devices_in_color,
     get_count_devices_in_price,
@@ -80,6 +81,9 @@ def cache_price(token):
 def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
     if int(new_count_devices) < 0:
         return "Значение меньше нуля"
+    if int(new_count_devices) > LIMIT:
+        return {"error": f"Больше {LIMIT} не надо"}
+
     prices, colors = dict_for_statistics()
 
     devices = Device.objects.prefetch_related("button_set", "price_set").all()
@@ -92,58 +96,63 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
         else:
             count_devices = int(new_count_devices)
 
-            # Если введенное кол-во устройств больше чем устройств в базе
-            # дозаписывается разница между значениями
-            list_obj_devices = []
-            for i in range(count_devices):
-                # list_obj_devices.append(Device(token=i))
+            # =================================================================
 
-                # Создать запись в БД для Device
-                create_device(i)
-            devices = Device.objects.prefetch_related("button_set", "price_set").all()
+            Device.objects.all().delete()
+            list_devices = []
+            list_color = []
+            list_price = []
+
+            for i in range(count_devices):
+                try:
+                    list_devices.append(Device(token=i))
+                    color = COLOR_DICT[i % len(COLOR_DICT)]
+                    price = assign_price()
+
+                    list_color.append(Button(device=list_devices[0], color=color))
+                    list_price.append(Price(device=list_devices[0], price=price))
+                except Exception as e:
+                    pass
+            Device.objects.bulk_create(list_devices)
+            Button.objects.bulk_create(list_color)
+            Price.objects.bulk_create(list_price)
+
+        # =================================================================
+        # Создать запись в БД для Device
+        # create_device(i)
+
+        devices = Device.objects.prefetch_related("button_set", "price_set").all()
+        logger.debug(len(devices))
 
         try:
             for device in devices:
                 for device_id in device.button_set.all():
-                    # Увеличить значение оного из цветов на 1
+                    # Посчитать количество устроойств для каждой группы цвета
                     colors[COLOR_DICT_FOR_STATISTIC[device_id.color]] += 1
 
                 for device_id in device.price_set.all():
-                    # Увеличить значение при подсчёте
+                    # Посчитать количество устроойств для каждой группы цен
                     prices[device_id.price] += 1
 
-            # Получить словарь количественного распределения
-            # устройств между цветами
-            count_devices_dict = get_count_devices_in_color(colors)
-            # Получить словарь количественного распределения
-            # устройств между ценами
-            # Объеденить два словаря
-            count_devices_dict.update(get_count_devices_in_price(prices))
+            # Объеденить в один словарь
+            count_devices_dict = {**colors, **prices}
 
-            logger.info(count_devices_dict)
         except Exception as e:
             logger.error(f"ERROR-1: {str(e)}")
+            return f"{e}"
 
         logger.info(prices)  # Количественное распределение цен
         logger.info(colors)  # Количественное распределение цвета
-        # Выводим проценты
-        print("Всего устройств:", count_devices_now, "\n---------------------")
-        print("РАСПРЕДЕЛЕНИЕ ЦЕНЫ:\n")
+        print()
+        logger.info(count_devices_dict)  # Общий словарь распределение цвета и цены
 
         for price, count in prices.items():
             #
             prices[price] = f"{count / count_devices * 100:.2f}"
-            print(f"Цена {price}: {count / count_devices * 100:.2f}%")
-
-        print("-" * 50)
-
-        print("РАСПРЕДЕЛЕНИЕ ЦВЕТА ДЛЯ КНОПОК:\n")
 
         for color, count in colors.items():
-            #
 
             colors[color] = f"{count / count_devices * 100:.2f}"
-            print(f"Цвет {color}: {count / count_devices * 100:.2f}%")
 
         return {
             "count_devices_dict": count_devices_dict,

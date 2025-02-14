@@ -93,7 +93,7 @@ def add_devices(request):
 
         context = service_add_devices(request, number_of_device)
 
-        logger.info(context)
+        # logger.info(context)
         return render(request, "main.html", {"context": context})
 
     return redirect("main")

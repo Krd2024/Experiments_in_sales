@@ -3,6 +3,8 @@ import random
 COLOR_DICT = {0: "#FF0000", 1: "#00FF00", 2: "#0000FF"}
 COLOR_DICT_FOR_STATISTIC = {"#FF0000": "red", "#00FF00": "green", "#0000FF": "blue"}
 
+LIMIT = 20000
+
 
 def dict_for_statistics() -> dict:
     prices = {10: 0, 20: 0, 50: 0, 5: 0}
