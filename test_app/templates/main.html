@@ -28,7 +28,7 @@
           <tr>
             <th>Цвет</th>
             <th>Процент</th>
-            <th>Кол-во устройств</th>
+            <th>Кол-во</th>
           </tr>
         </thead>
         <tbody>
@@ -57,24 +57,29 @@
           <tr>
             <th>Цена</th>
             <th>Процент</th>
+            <th>Кол-во</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>10</td>
             <td>{{ context.price.10 }}%</td>
+            <td>{{ context.count_devices_dict.10 }}</td>
           </tr>
           <tr>
             <td>20</td>
             <td>{{ context.price.20 }}%</td>
+            <td>{{ context.count_devices_dict.20 }}</td>
           </tr>
           <tr>
             <td>50</td>
             <td>{{ context.price.50 }}%</td>
+            <td>{{ context.count_devices_dict.50 }}</td>
           </tr>
           <tr>
             <td>5</td>
             <td>{{ context.price.5 }}%</td>
+            <td>{{ context.count_devices_dict.5 }}</td>
           </tr>
         </tbody>
       </table>

@@ -4,6 +4,8 @@ from test_app.config.color_and_price import (
     COLOR_DICT,
     COLOR_DICT_FOR_STATISTIC,
     dict_for_statistics,
+    get_count_devices_in_color,
+    get_count_devices_in_price,
 )
 from test_app.config.color_and_price import assign_price
 from test_app.models import Button, Device, Price
@@ -38,8 +40,6 @@ def create_device(token: str) -> object:
 
         # Получить цену согласно процетному распределению
         price = assign_price()
-        # logger.info((color, "--- color ---"))
-        # logger.info((price, "--- price ---"))
 
         price_obj = Price.objects.create(device=device, price=price)
         color_obj = Button.objects.create(device=device, color=color)
@@ -73,7 +73,7 @@ def cache_price(token):
         price_obj = get_price(token)
         data = {"device": token, "color": color_obj.color, "price": price_obj.price}
         cache.set(token, data)
-    # logger.debug(data)
+    logger.debug(data)
     return data
 
 
@@ -90,12 +90,14 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
             count_devices = int(new_count_devices)
             devices = devices[:count_devices]
         else:
-            # Если введенное кол-во устройств больше чем устройств в базе
-            # дозаписывается разница между значениями
-            #
             count_devices = int(new_count_devices)
 
+            # Если введенное кол-во устройств больше чем устройств в базе
+            # дозаписывается разница между значениями
+            list_obj_devices = []
             for i in range(count_devices):
+                # list_obj_devices.append(Device(token=i))
+
                 # Создать запись в БД для Device
                 create_device(i)
             devices = Device.objects.prefetch_related("button_set", "price_set").all()
@@ -107,14 +109,17 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
                     colors[COLOR_DICT_FOR_STATISTIC[device_id.color]] += 1
 
                 for device_id in device.price_set.all():
-                    #
+                    # Увеличить значение при подсчёте
                     prices[device_id.price] += 1
 
-            count_devices_dict = {
-                "color_red": colors["red"],
-                "color_green": colors["green"],
-                "color_blue": colors["blue"],
-            }
+            # Получить словарь количественного распределения
+            # устройств между цветами
+            count_devices_dict = get_count_devices_in_color(colors)
+            # Получить словарь количественного распределения
+            # устройств между ценами
+            # Объеденить два словаря
+            count_devices_dict.update(get_count_devices_in_price(prices))
+
             logger.info(count_devices_dict)
         except Exception as e:
             logger.error(f"ERROR-1: {str(e)}")
