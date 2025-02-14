@@ -89,10 +89,8 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
     # devices = DeviceTest.objects.prefetch_related("button_set", "price_set").all()
     DeviceTest.objects.all().delete()
     try:
-
         count_devices = int(new_count_devices)
 
-        Device.objects.all().delete()
         list_devices = []
         list_color = []
         list_price = []
@@ -119,40 +117,6 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
         devices = DeviceTest.objects.prefetch_related("button_set", "price_set").all()
 
         return statistics(devices)
-
-        # try:
-        #     prices, colors = dict_for_statistics()
-        #     for device in devices:
-        #         for device_id in device.buttontest_set.all():
-        #             # Посчитать количество устроойств для каждой группы цвета
-        #             colors[COLOR_DICT_FOR_STATISTIC[device_id.color]] += 1
-
-        #         for device_id in device.pricetest_set.all():
-        #             # Посчитать количество устроойств для каждой группы цен
-        #             prices[device_id.price] += 1
-
-        #     # Объеденить в один словарь
-        #     count_devices_dict = {**colors, **prices}
-
-        # except Exception as e:
-        #     logger.error(f"ERROR-1: {str(e)}")
-        #     return f"{e}"
-
-        # logger.info(prices)  # Количественное распределение цен
-        # logger.info(colors)  # Количественное распределение цвета
-
-        # for price, count in prices.items():
-        #     prices[price] = f"{count / count_devices * 100:.2f}"
-
-        # for color, count in colors.items():
-        #     colors[color] = f"{count / count_devices * 100:.2f}"
-
-        # return {
-        #     "count_devices_dict": count_devices_dict,
-        #     "price": prices,
-        #     "color": colors,
-        #     "total_devices": count_devices,
-        # }
 
     except Exception as e:
         logger.error(f"Ошибка: {e}")

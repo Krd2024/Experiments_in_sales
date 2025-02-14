@@ -71,6 +71,8 @@ class TestViewSet(APIView):
             # Получить сериалайзер
             serializer = self.get_serializer_class()(data=data)
 
+            # Прверить наличие устройства в БД
+            # При наличии устройства, вернёт из кеша
             data = action_choice_token(device_token)
 
             if data:
