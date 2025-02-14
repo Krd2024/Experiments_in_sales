@@ -46,10 +46,9 @@ def create_device(token: str) -> object:
         color_obj = Button.objects.create(device=device, color=color)
 
         data = {"device": token, "color": color_obj.color, "price": price_obj.price}
-        # print(data, "--- data in create_device ---")
         cache.set(token, data)
 
-        # logger.debug((f"{cache.get(token)} ✅ Добавлено в кеш"))
+        logger.debug((f"{cache.get(token)} ✅ Добавлено в кеш"))
 
         return data
     except Exception as e:
@@ -85,8 +84,6 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
     if int(new_count_devices) > LIMIT:
         return {"error": f"Больше {LIMIT} не надо"}
 
-    prices, colors = dict_for_statistics()
-
     # devices = DeviceTest.objects.prefetch_related("button_set", "price_set").all()
     DeviceTest.objects.all().delete()
     try:
@@ -120,6 +117,7 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
         ).all()
 
         try:
+            prices, colors = dict_for_statistics()
             for device in devices:
                 for device_id in device.buttontest_set.all():
                     # Посчитать количество устроойств для каждой группы цвета
@@ -140,18 +138,16 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
         logger.info(colors)  # Количественное распределение цвета
 
         for price, count in prices.items():
-            #
             prices[price] = f"{count / count_devices * 100:.2f}"
 
         for color, count in colors.items():
-
             colors[color] = f"{count / count_devices * 100:.2f}"
 
         return {
             "count_devices_dict": count_devices_dict,
             "price": prices,
             "color": colors,
-            "count_devices_now": count_devices,
+            "total_devices": count_devices,
         }
 
     except Exception as e:

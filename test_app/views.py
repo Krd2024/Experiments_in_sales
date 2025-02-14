@@ -14,6 +14,14 @@ def main(request):
     return render(request, "main.html")
 
 
+def tests(request):
+    return render(request, "tests.html")
+
+
+def work(request):
+    return render(request, "work.html")
+
+
 class TestViewSet(APIView):
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -93,6 +101,6 @@ def add_devices(request):
         context = service_add_devices(request, number_of_device)
 
         # logger.info(context)
-        return render(request, "main.html", {"context": context})
+        return render(request, "tests.html", {"context": context})
 
     return redirect("main")

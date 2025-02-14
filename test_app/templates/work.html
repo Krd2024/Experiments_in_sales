@@ -1,0 +1,76 @@
+{% extends 'main.html' %}
+{% block content %}
+  <div class="container mt-5">
+    <div class="mb-3">
+      <hr />
+      <div class="alert alert-info d-inline-block">
+        <span class="fw-bold">Число устройств:</span>
+        <span id="totalDevices" class="badge bg-primary">{{ context.count_devices_now }}{{ context.error }}</span>
+      </div>
+    </div>
+
+    <h2>Цвета кнопок</h2>
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>Цвет</th>
+          <th>Процент</th>
+          <th>Кол-во</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="background-color: #FF0000; color: white;">#FF0000</td>
+          <td>{{ context.color.red }}%</td>
+          <td>{{ context.count_devices_dict.red }}</td>
+          {% comment %} <td>{{ count_devices_dict.count_devaice_color_red }}%</td> {% endcomment %}
+        </tr>
+        <tr>
+          <td style="background-color: #00FF00;">#00FF00</td>
+          <td>{{ context.color.green }}%</td>
+          <td>{{ context.count_devices_dict.green }}</td>
+        </tr>
+        <tr>
+          <td style="background-color: #0000FF; color: white;">#0000FF</td>
+          <td>{{ context.color.blue }}%</td>
+          <td>{{ context.count_devices_dict.blue }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Цены</h2>
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>Цена</th>
+          <th>Процент</th>
+          <th>Кол-во</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>10</td>
+          <td>{{ context.price.10 }}%</td>
+          <td>{{ context.count_devices_dict.10 }}</td>
+        </tr>
+        <tr>
+          <td>20</td>
+          <td>{{ context.price.20 }}%</td>
+          <td>{{ context.count_devices_dict.20 }}</td>
+        </tr>
+        <tr>
+          <td>50</td>
+          <td>{{ context.price.50 }}%</td>
+          <td>{{ context.count_devices_dict.50 }}</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>{{ context.price.5 }}%</td>
+          <td>{{ context.count_devices_dict.5 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
