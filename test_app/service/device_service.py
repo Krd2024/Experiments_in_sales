@@ -9,7 +9,7 @@ from test_app.config.color_and_price import (
     get_count_devices_in_price,
 )
 from test_app.config.color_and_price import assign_price
-from test_app.models import Button, Device, Price
+from test_app.models import Button, ButtonTest, Device, DeviceTest, Price, PriceTest
 from loguru import logger
 from django.core.cache import cache
 
@@ -79,6 +79,7 @@ def cache_price(token):
 
 
 def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
+
     if int(new_count_devices) < 0:
         return "Значение меньше нуля"
     if int(new_count_devices) > LIMIT:
@@ -86,8 +87,8 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
 
     prices, colors = dict_for_statistics()
 
-    devices = Device.objects.prefetch_related("button_set", "price_set").all()
-
+    # devices = DeviceTest.objects.prefetch_related("button_set", "price_set").all()
+    DeviceTest.objects.all().delete()
     try:
 
         count_devices = int(new_count_devices)
@@ -107,21 +108,24 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
                 list_price.append(Price(device=list_devices[0], price=price))
             except Exception as e:
                 pass
-        Device.objects.bulk_create(list_devices)
-        Button.objects.bulk_create(list_color)
-        Price.objects.bulk_create(list_price)
+
+        DeviceTest.objects.bulk_create(list_devices)
+        ButtonTest.objects.bulk_create(list_color)
+        PriceTest.objects.bulk_create(list_price)
 
         # ================================================================================
 
-        devices = Device.objects.prefetch_related("button_set", "price_set").all()
+        devices = DeviceTest.objects.prefetch_related(
+            "buttontest_set", "pricetest_set"
+        ).all()
 
         try:
             for device in devices:
-                for device_id in device.button_set.all():
+                for device_id in device.buttontest_set.all():
                     # Посчитать количество устроойств для каждой группы цвета
                     colors[COLOR_DICT_FOR_STATISTIC[device_id.color]] += 1
 
-                for device_id in device.price_set.all():
+                for device_id in device.pricetest_set.all():
                     # Посчитать количество устроойств для каждой группы цен
                     prices[device_id.price] += 1
 
