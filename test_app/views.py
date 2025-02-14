@@ -59,9 +59,9 @@ class TestViewSet(APIView):
             serializer = self.get_serializer_class()(data=data)
 
             data = action_choice_token(device_token)
-            logger.info((f"✅ {data} < --- Данные из кеша "))
 
             if data:
+                logger.info((f"✅ {data} < --- Данные из кеша "))
                 return Response(data, status=200)
 
             if serializer.is_valid():
