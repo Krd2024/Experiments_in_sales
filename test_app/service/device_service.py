@@ -54,7 +54,7 @@ def create_device(token: str) -> object:
         return data
     except Exception as e:
         pass
-        # logger.error(f"Ошибка: {e}")
+        logger.error(f"Ошибка: {e}")
 
 
 def action_choice_token(token):
@@ -62,7 +62,7 @@ def action_choice_token(token):
         return False
         # Получить цвет кнопки и прайс
     data = cache_price(token)
-    logger.debug(data)
+    # logger.debug(data)
     return data
 
 
@@ -87,42 +87,33 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
     prices, colors = dict_for_statistics()
 
     devices = Device.objects.prefetch_related("button_set", "price_set").all()
-    count_devices_now = len(devices)
 
     try:
-        if int(new_count_devices) < count_devices_now:
-            count_devices = int(new_count_devices)
-            devices = devices[:count_devices]
-        else:
-            count_devices = int(new_count_devices)
 
-            # =================================================================
+        count_devices = int(new_count_devices)
 
-            Device.objects.all().delete()
-            list_devices = []
-            list_color = []
-            list_price = []
+        Device.objects.all().delete()
+        list_devices = []
+        list_color = []
+        list_price = []
 
-            for i in range(count_devices):
-                try:
-                    list_devices.append(Device(token=i))
-                    color = COLOR_DICT[i % len(COLOR_DICT)]
-                    price = assign_price()
+        for i in range(count_devices):
+            try:
+                list_devices.append(Device(token=i))
+                color = COLOR_DICT[i % len(COLOR_DICT)]
+                price = assign_price()
 
-                    list_color.append(Button(device=list_devices[0], color=color))
-                    list_price.append(Price(device=list_devices[0], price=price))
-                except Exception as e:
-                    pass
-            Device.objects.bulk_create(list_devices)
-            Button.objects.bulk_create(list_color)
-            Price.objects.bulk_create(list_price)
+                list_color.append(Button(device=list_devices[0], color=color))
+                list_price.append(Price(device=list_devices[0], price=price))
+            except Exception as e:
+                pass
+        Device.objects.bulk_create(list_devices)
+        Button.objects.bulk_create(list_color)
+        Price.objects.bulk_create(list_price)
 
-        # =================================================================
-        # Создать запись в БД для Device
-        # create_device(i)
+        # ================================================================================
 
         devices = Device.objects.prefetch_related("button_set", "price_set").all()
-        logger.debug(len(devices))
 
         try:
             for device in devices:
@@ -143,8 +134,6 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
 
         logger.info(prices)  # Количественное распределение цен
         logger.info(colors)  # Количественное распределение цвета
-        print()
-        logger.info(count_devices_dict)  # Общий словарь распределение цвета и цены
 
         for price, count in prices.items():
             #

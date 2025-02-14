@@ -89,7 +89,6 @@ class TestViewSet(APIView):
 def add_devices(request):
     if request.method == "POST":
         number_of_device = request.POST.get("device_count")
-        logger.debug(number_of_device)
 
         context = service_add_devices(request, number_of_device)
 
