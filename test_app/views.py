@@ -102,12 +102,18 @@ class TestViewSet(APIView):
 
 
 def add_devices(request):
+    """
+    Для тестов
+    Вызывает сервисную функцию для добавления устройств
+    """
+
     if request.method == "POST":
+        # Получить кол-во устройств для добавления в БД
         number_of_device = request.POST.get("device_count")
 
+        # Получить статистику по устройствам
         context = service_add_devices(request, number_of_device)
 
-        # logger.info(context)
         return render(request, "tests.html", {"context": context})
 
     return redirect("main")
