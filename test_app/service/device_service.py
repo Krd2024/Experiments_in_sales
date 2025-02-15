@@ -56,7 +56,6 @@ def create_device(token: str) -> object:
         logger.debug((f"{cache.get(token)} ✅ Добавлено в кеш"))
 
         return data
-        return price_obj, color_obj
     except Exception as e:
         pass
         logger.error(f"Ошибка: {e}")
@@ -80,17 +79,18 @@ def cache_price(token):
     Проверяет наличие данных об устройстве в кеше
 
     Если данные есть - возвращает
-    Если нет -
-
+    Если нет - получает цвет, цену и записывает кеш.
     """
     data = cache.get(token)
 
     if data is None:
-        # price_obj, color_obj = create_device(token)
-        # logger.debug((price_obj, color_obj))
+        # Получает цвет кнопки
         color_obj = get_color_button(token)
+        # Получает цену
         price_obj = get_price(token)
+        # Формирует словарь для записи в кеш
         data = {"device": token, "color": color_obj.color, "price": price_obj.price}
+        # Запись в кеш
         cache.set(token, data)
     logger.debug(data)
     return {"data": data, "message": "✅ < --- Данные из кеша"}
@@ -138,7 +138,6 @@ def service_add_devices(request, new_count_devices: str) -> dict[str, str]:
         ButtonTest.objects.bulk_create(list_color)
         PriceTest.objects.bulk_create(list_price)
 
-        # ================================================================================
         # Получить все устройства и связанные с ними цвета кнопок и цены
         devices = DeviceTest.objects.prefetch_related("button_set", "price_set").all()
 

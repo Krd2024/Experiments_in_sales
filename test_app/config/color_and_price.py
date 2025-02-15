@@ -6,7 +6,14 @@ COLOR_DICT_FOR_STATISTIC = {"#FF0000": "red", "#00FF00": "green", "#0000FF": "bl
 LIMIT = 20000
 
 
-def dict_for_statistics() -> dict:
+def dict_for_statistics() -> tuple[dict[int, int], dict[str, int]]:
+    """
+    Словари для подсчёта количества устройств со значениями
+
+    Возвращает два словаря:
+    - Первый: ключи (цены) — int, значения — int
+    - Второй: ключи (цвета) — str, значения — int
+    """
     prices = {10: 0, 20: 0, 50: 0, 5: 0}
     colors = {"red": 0, "green": 0, "blue": 0}
     return prices, colors
@@ -24,20 +31,3 @@ def assign_price() -> int:
         return 50  # 5% получат цену 50
     else:
         return 5  # 10% получат цену 5
-
-
-# def get_count_devices_in_color(colors: dict[str, str]) -> dict[str, int]:
-#     return {
-#         "color_red": colors["red"],
-#         "color_green": colors["green"],
-#         "color_blue": colors["blue"],
-#     }
-
-
-# def get_count_devices_in_price(price: dict[str, str]) -> dict[str, int]:
-#     return {
-#         10: price[10],
-#         20: price[20],
-#         50: price[50],
-#         5: price[5],
-#     }

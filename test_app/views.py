@@ -9,21 +9,23 @@ from loguru import logger
 from test_app.serializers import RequestSerializer
 from test_app.service.device_service import (
     action_choice_token,
-    create_device,
     service_add_devices,
     work_service,
 )
 
 
 def main(request) -> None:
+    """Главна страница"""
     return render(request, "main.html")
 
 
 def tests(request) -> None:
+    """Сраница с тестами"""
     return render(request, "tests.html")
 
 
 def work(request) -> HttpResponse:
+    # Получает сформированную статистику в виде словаря
     context = work_service(request)
     return render(request, "work.html", {"context": context})
 
@@ -80,6 +82,16 @@ class TestViewSet(APIView):
         ],
     )
     def post(self, request):
+        """
+            Обрабатывает POST-запрос.
+
+        - Получает токен устройства из заголовков.
+        - Копирует данные запроса и добавляет в них токен.
+        - Проверяет наличие устройства в БД:
+          - Если устройство есть, возвращает данные из кеша.
+          - Если нет, создаёт новый объект.
+        - Логирует результат и возвращает ответ.
+        """
         try:
             # Получить токен из заголовка
             device_token = request.headers.get("DeviceToken")
