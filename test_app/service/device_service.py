@@ -71,8 +71,8 @@ def action_choice_token(token):
         data = create_device(token)
         return {"data": data, "message": "✅ < --- Новая запись"}
     # Получить данные из кеша
-    data = cache_price(token)
-    return data
+    # data = cache_price(token)
+    return cache_price(token)
 
 
 def cache_price(token):

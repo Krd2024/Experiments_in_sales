@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,20 +15,42 @@ from test_app.service.device_service import (
 )
 
 
-def main(request):
+def main(request) -> None:
     return render(request, "main.html")
 
 
-def tests(request):
+def tests(request) -> None:
     return render(request, "tests.html")
 
 
-def work(request):
+def work(request) -> HttpResponse:
     context = work_service(request)
     return render(request, "work.html", {"context": context})
 
 
 class TestViewSet(APIView):
+    """
+    Представление API для обработки запросов, связанных с устройствами.
+
+    - **Запрос**:
+        - **Headers**:
+            ```json
+            {
+                "DeviceToken": 1
+            }
+            ```
+    - **Ответ (200 OK)**:
+        - Тип: массив объектов
+        - Каждый объект содержит:
+        ```
+        {
+            - device (str): Идентификатор устройства (пример: `"1"`)
+            - color (str): Цвет кнопки для устройства в формате HEX (пример: `"#FF0000"`)
+            - price (float): Цена для устройства (пример: `10`)
+        }
+        ```
+    `extend_schema` используется для автоматической генерации документации API.
+    """
 
     @extend_schema(
         request=RequestSerializer,
@@ -67,15 +90,14 @@ class TestViewSet(APIView):
 
             # Прверить наличие устройства в БД
             # При наличии устройства, вернёт из кеша
+            # Иначе создаёт и возвращает новый объект
             data = action_choice_token(device_token)
 
-            if data:
-
-                logger.info((data))
-                return Response(data["data"], status=200)
+            if not data:
+                raise
 
             logger.info((data["message"]))
-            return Response({"data": data})
+            return Response(data["data"], status=200)
 
         except IntegrityError as e:
             logger.error(f"Ошибка базы данных: {e}")
@@ -91,7 +113,7 @@ class TestViewSet(APIView):
             return Response({"error": "Внутренняя ошибка сервера"}, status=500)
 
 
-def add_devices(request):
+def add_devices(request) -> HttpResponse:
     """
     Для тестов
     Вызывает сервисную функцию для добавления устройств
