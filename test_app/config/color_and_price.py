@@ -13,6 +13,7 @@ def dict_for_statistics() -> dict:
 
 
 def assign_price() -> int:
+    """Распределение цены"""
     rand_value = random.random() * 100
 
     if rand_value < 75:
@@ -25,18 +26,18 @@ def assign_price() -> int:
         return 5  # 10% получат цену 5
 
 
-def get_count_devices_in_color(colors: dict[str, str]) -> dict[str, int]:
-    return {
-        "color_red": colors["red"],
-        "color_green": colors["green"],
-        "color_blue": colors["blue"],
-    }
+# def get_count_devices_in_color(colors: dict[str, str]) -> dict[str, int]:
+#     return {
+#         "color_red": colors["red"],
+#         "color_green": colors["green"],
+#         "color_blue": colors["blue"],
+#     }
 
 
-def get_count_devices_in_price(price: dict[str, str]) -> dict[str, int]:
-    return {
-        10: price[10],
-        20: price[20],
-        50: price[50],
-        5: price[5],
-    }
+# def get_count_devices_in_price(price: dict[str, str]) -> dict[str, int]:
+#     return {
+#         10: price[10],
+#         20: price[20],
+#         50: price[50],
+#         5: price[5],
+#     }

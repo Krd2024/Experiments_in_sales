@@ -19,7 +19,9 @@ def statistics(devices: QuerySet) -> dict[str, str]:
 
     try:
         count_devices = len(devices)
+        # Словари для подсчёта количества устройств со значениями равными нулю
         prices, colors = dict_for_statistics()
+
         for device in devices:
             for device_id in device.button_set.all():
                 # Посчитать количество устроойств для каждой группы цвета
@@ -38,18 +40,23 @@ def statistics(devices: QuerySet) -> dict[str, str]:
 
     logger.info(prices)  # Количественное распределение цен
     logger.info(colors)  # Количественное распределение цвета
+
     try:
+        # Расчёт процентного соотношения для цены
         for price, count in prices.items():
             prices[price] = f"{count / count_devices * 100:.2f}"
 
+        # Расчёт процентного соотношения для цвета
         for color, count in colors.items():
             colors[color] = f"{count / count_devices * 100:.2f}"
+
     except ZeroDivisionError:
         count_devices = 0
-    print("----------------- 1")
+
     return {
+        # количество устроойств для каждой группы price, color
         "count_devices_dict": count_devices_dict,
-        "price": prices,
-        "color": colors,
+        "price": prices,  # процентного соотношения для цены
+        "color": colors,  # процентного соотношения для цвета
         "total_devices": count_devices,
     }

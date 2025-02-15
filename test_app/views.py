@@ -5,10 +5,10 @@ from django.db import IntegrityError
 from django.shortcuts import redirect, render
 from loguru import logger
 
-# from test_app.service.config import action_choice_token, service_add_devices
-from test_app.serializers import DeviceSerializer, RequestSerializer
+from test_app.serializers import RequestSerializer
 from test_app.service.device_service import (
     action_choice_token,
+    create_device,
     service_add_devices,
     work_service,
 )
@@ -28,10 +28,6 @@ def work(request):
 
 
 class TestViewSet(APIView):
-    def get_serializer_class(self):
-        if self.request.method == "POST":
-            return DeviceSerializer
-        return DeviceSerializer
 
     @extend_schema(
         request=RequestSerializer,
@@ -68,24 +64,18 @@ class TestViewSet(APIView):
             data = request.data.copy()
             # Добавить токен в запрос
             data["token"] = device_token
-            # Получить сериалайзер
-            serializer = self.get_serializer_class()(data=data)
 
             # Прверить наличие устройства в БД
             # При наличии устройства, вернёт из кеша
             data = action_choice_token(device_token)
 
             if data:
-                logger.info((f"✅ {data} < --- Данные из кеша "))
-                return Response(data, status=200)
 
-            if serializer.is_valid():
-                data = serializer.data["token"]
-                logger.info((f"✅ {data} < --- Новые данные"))
-                return Response({"data": data})
+                logger.info((data))
+                return Response(data["data"], status=200)
 
-            logger.error(serializer.errors)
-            return Response(serializer.errors, status=400)
+            logger.info((data["message"]))
+            return Response({"data": data})
 
         except IntegrityError as e:
             logger.error(f"Ошибка базы данных: {e}")

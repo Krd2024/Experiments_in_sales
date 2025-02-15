@@ -56,9 +56,10 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 SPECTACULAR_SETTINGS = {
-    "TITLE": "API для работы ...",
+    "TITLE": "API для тестирования гипотез",
     "DESCRIPTION": """
-    Этот API предоставляет функции для работы ...
+    Эта система предоставляет собой простейшей REST API, состоящее из одного эндпойнта,
+    позволяющая проводить AB-тесты.
     """,
 }
 
